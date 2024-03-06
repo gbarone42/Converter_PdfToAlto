@@ -39,6 +39,7 @@ public class PdfToAlto {
         // Command to execute pdfalto
         String[] command = {
             pdfAltoExecutablePath,
+            "-noImage",  // this option to prevent images from being extracted
             pdfFilePath,
             altoOutputDir + "/" + fileNameWithoutExt + ".xml"
         };
