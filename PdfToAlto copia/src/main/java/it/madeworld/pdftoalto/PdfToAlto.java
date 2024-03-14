@@ -7,13 +7,30 @@ import java.io.File;
 //import java.io.FileWriter;
 import java.io.IOException;
 
+/**
+ * Classe utilizzata per la gestione del convertitore Pdf to Alto
+ */
 public class PdfToAlto {
 
+  private String pdfAltoExecutablePath = null;
+  
     // Constructor
-    public PdfToAlto() {
-        // Any initialization you might need
+  /**
+   * Costruttore della Classe
+   * 
+   * @param pdfAltoExecutablePath PAth completo per indicare la posizione e il nome del file raltivo al cconvertitore Alto
+   */
+    public PdfToAlto(String pdfAltoExecutablePath) {
+      this.pdfAltoExecutablePath = pdfAltoExecutablePath;
     }
 
+    /**
+     * Classe utilizzata per verificare e creare il file Alto da un PDF
+     * 
+     * @param pdfFilePath Path più nome file PDF
+     * @param altoOutputDir PAth in cui scaricare il file alto
+     * @throws Exception 
+     */
     public void convertPdfToAlto(String pdfFilePath, String altoOutputDir) throws Exception {
         // Check if the PDF file exists
         File pdfFile = new File(pdfFilePath);
@@ -30,8 +47,6 @@ public class PdfToAlto {
             }
         }
 
-        // Path to the pdfalto executable
-        String pdfAltoExecutablePath = "/Users/barone/Desktop/PDFALTO/pdfalto/pdfalto"; // Replace with the actual path to the executable
 
         // Generate a file name for the ALTO XML without the '.pdf' extension
         String fileNameWithoutExt = pdfFile.getName().replaceFirst("[.][^.]+$", "");
@@ -41,7 +56,7 @@ public class PdfToAlto {
             pdfAltoExecutablePath,
             "-noImage",  // this option to prevent images from being extracted
             pdfFilePath,
-            altoOutputDir + "/" + fileNameWithoutExt + ".xml"
+            altoOutputDir + File.separator + fileNameWithoutExt + ".xml"
         };
 
         // Execute pdfalto command
@@ -59,6 +74,10 @@ public class PdfToAlto {
     }
 
     // Main method
+    /**
+     * 
+     * @param args
+     */
     public static void main(String[] args) {
         if (args.length != 2) {
             System.out.println("Usage: PdfToAlto <PDF file path> <ALTO XML output directory>");
@@ -67,7 +86,7 @@ public class PdfToAlto {
 
         String pdfFilePath = args[0];
         String altoOutputDir = args[1];
-        PdfToAlto converter = new PdfToAlto();
+        PdfToAlto converter = new PdfToAlto("/Users/barone/Desktop/PDFALTO/pdfalto/pdfalto");
 
         try {
             converter.convertPdfToAlto(pdfFilePath, altoOutputDir);
