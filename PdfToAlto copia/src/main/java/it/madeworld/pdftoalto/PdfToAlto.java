@@ -29,48 +29,58 @@ public class PdfToAlto {
      * 
      * @param pdfFilePath Path più nome file PDF
      * @param altoOutputDir PAth in cui scaricare il file alto
+     * @throws IOException 
+     * @throws InterruptedException 
      * @throws Exception 
      */
-    public void convertPdfToAlto(String pdfFilePath, String altoOutputDir) throws Exception {
+    public String convertPdfToAlto(String pdfFilePath, String altoOutputDir) throws IOException, InterruptedException   {
         // Check if the PDF file exists
-        File pdfFile = new File(pdfFilePath);
-        if (!pdfFile.exists()) {
-            throw new IOException("The PDF file does not exist: " + pdfFilePath);
-        }
-
-        // Ensure the output directory exists
-        File altoOutputDirFile = new File(altoOutputDir);
-        if (!altoOutputDirFile.exists()) {
-            boolean wasDirectoryMade = altoOutputDirFile.mkdirs(); // Create the directory if it does not exist
-            if (!wasDirectoryMade) {
-                throw new IOException("Failed to create the output directory: " + altoOutputDir);
-            }
-        }
-
-
         // Generate a file name for the ALTO XML without the '.pdf' extension
-        String fileNameWithoutExt = pdfFile.getName().replaceFirst("[.][^.]+$", "");
+        String fileNameWithoutExt;
+        try {
+          File pdfFile = new File(pdfFilePath);
+          if (!pdfFile.exists()) {
+              throw new IOException("The PDF file does not exist: " + pdfFilePath);
+          }
 
-        // Command to execute pdfalto
-        String[] command = {
-            pdfAltoExecutablePath,
-            "-noImage",  // this option to prevent images from being extracted
-            pdfFilePath,
-            altoOutputDir + File.separator + fileNameWithoutExt + ".xml"
-        };
+          // Ensure the output directory exists
+          File altoOutputDirFile = new File(altoOutputDir);
+          if (!altoOutputDirFile.exists()) {
+              boolean wasDirectoryMade = altoOutputDirFile.mkdirs(); // Create the directory if it does not exist
+              if (!wasDirectoryMade) {
+                  throw new IOException("Failed to create the output directory: " + altoOutputDir);
+              }
+          }
 
-        // Execute pdfalto command
-        ProcessBuilder processBuilder = new ProcessBuilder(command);
-        processBuilder.directory(altoOutputDirFile); // Set the working directory to the output directory
-        Process process = processBuilder.start();
 
-        // Wait for the process to complete
-        int exitCode = process.waitFor();
-        if (exitCode != 0) {
-            throw new IOException("pdfalto conversion failed with exit code " + exitCode);
+          fileNameWithoutExt = pdfFile.getName().replaceFirst("[.][^.]+$", "");
+
+          // Command to execute pdfalto
+          String[] command = {
+              pdfAltoExecutablePath,
+              "-noImage",  // this option to prevent images from being extracted
+              pdfFilePath,
+              altoOutputDir + File.separator + fileNameWithoutExt + ".xml"
+          };
+
+          // Execute pdfalto command
+          ProcessBuilder processBuilder = new ProcessBuilder(command);
+          processBuilder.directory(altoOutputDirFile); // Set the working directory to the output directory
+          Process process = processBuilder.start();
+
+          // Wait for the process to complete
+          int exitCode = process.waitFor();
+          if (exitCode != 0) {
+              throw new IOException("pdfalto conversion failed with exit code " + exitCode);
+          }
+        } catch (IOException e) {
+          throw e;
+        } catch (InterruptedException e) {
+          throw e;
         }
 
         System.out.println("Conversion to ALTO XML completed successfully.");
+        return altoOutputDir + File.separator + fileNameWithoutExt + ".xml";
     }
 
     // Main method
